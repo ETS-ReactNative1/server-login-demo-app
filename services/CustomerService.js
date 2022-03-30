@@ -1,4 +1,4 @@
-import { getHashPassword } from '../lib/hashPassword';
+const { getHashPassword } = require('../lib/hashPassword');
 const pool = require("../db/dbPostgress/config/db_connection");
 const {
     customer_grocery_list,
@@ -10,7 +10,7 @@ const {
     checkEmailUser,
   } = require("../db/dbPostgress/queries/authentication/checkEmail");
 
-export class CustomerService{
+class CustomerService{
 
 async customerSignup(payload){
 
@@ -146,3 +146,5 @@ return {msg: "Internal server error", error : error }
     }
 }
 }
+
+module.exports = CustomerService

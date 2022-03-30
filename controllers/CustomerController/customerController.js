@@ -1,5 +1,5 @@
 const { Response } = require('http-status-codez');
-const CustomerService = require('../../services/UserService');
+const CustomerService = require('../../services/CustomerService');
 
 
 const {
@@ -10,7 +10,7 @@ const {
 module.exports = {
   signUpCustomer: async (req, res) => {
     try {
-      const customer = await new CustomerService().signUpCustomer(req.body);
+      const customer = await new CustomerService().customerSignup(req.body);
 
       if (customer) {
         res
