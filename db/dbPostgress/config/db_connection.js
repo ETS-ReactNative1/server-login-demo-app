@@ -2,21 +2,12 @@ const { Pool } = require('pg');
 const { parse } = require('url');
 require('dotenv').config();
 
- let { DATABASE_URL: dbUrl } = process.env;
-
- const params = parse(dbUrl);
-const {
-  hostname: host, port, pathname, auth,
-} = params;
-
- const [user, password] = auth.split(':');
-
  const options = {
-  host,
-  port,
-  user,
-  password,
-  database: pathname.split('/')[1],
+  host: process.env.PG_DATABASE_HOST,
+  port : process.env.PG_DATABASE_PORT,
+  user: process.env.PG_DATABASE_USER,
+  password : process.env.PG_DATABASE_PASSWORD,
+  database: process.env.PG_DATABASE_NAME,
   max: process.env.MAX_DB_CONNECTION || 5,
   ssl: {
     rejectUnauthorized: false,
@@ -24,5 +15,5 @@ const {
 };
 
 
- const pool = new Pool(options);
+const pool = new Pool(options);
 module.exports = pool;
