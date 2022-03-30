@@ -3,7 +3,9 @@ const { join } = require('path');
 const { query } = require('./db_connection')
 const dbBuild = () => {
     new Promise((resolve, reject) => {
+        console.log('building database')
         readFileSync(join(__dirname, 'db_build.sql'), (errInFindingFile, sql) => {
+            console.log('getting file')
             if (errInFindingFile) reject(errInFindFile);
             query(sql)
                 .then(() => {

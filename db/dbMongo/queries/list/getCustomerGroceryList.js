@@ -27,7 +27,6 @@ exports.getCustomerGroceryList = (req, res) => {
           data: result,
         });
       });
-      console.log(groceryListArray);
     })
     .catch((err) => {
       res.status(500).send("internal server error");
