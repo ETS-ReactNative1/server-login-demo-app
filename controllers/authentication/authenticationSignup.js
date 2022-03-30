@@ -1,7 +1,7 @@
 const { checkEmail } = require('../../db/dbPostgress/queries/authentication/checkEmail');
 const { addCustomer } = require('../../db/dbPostgress/queries/authentication/addCustomer')
 const { customer } = require('../../db/dbMongo/config/db_buildSchema')
-const { hashPassword } = require('../hashPassword')
+const { hashPassword } = require('../../lib/hashPassword')
 const { sign } = require('jsonwebtoken')
 exports.authenticationSignup = (req, res, next) => {
     const memberInfo = { ...req.body }
