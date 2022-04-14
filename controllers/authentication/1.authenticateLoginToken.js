@@ -28,7 +28,7 @@ exports.authenticateLoginToken = (req, res, next) => {
             { expiresIuserInfoEncn: "1h", },// expires in 24hours secs
             (err, token) => {
               console.log("signed json token is");
-              console.log("token:", token);                    
+              console.log("token:", token);
               // If authentication is successful,
               // the server should create a JWT token else establishes an error response
               if (err) return res.json({ err });
@@ -87,7 +87,7 @@ exports.authenticateLoginToken = (req, res, next) => {
                       },
                       (err, token) => {
                         console.log("signed json token is");
-                        console.log("token:", token);                    
+                        console.log("token:", token);
                         // If authentication is successful,
                         // the server should create a JWT token else establishes an error response
                         if (err) return res.json({ err });

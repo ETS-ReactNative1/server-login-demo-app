@@ -27,8 +27,6 @@ const facebook = require("./routes/facebook");
 //----------------------------------------------------------------------------------
 const { authenticateLoginToken, } = require("./controllers/authentication/1.authenticateLoginToken");
 const { isAuthenticated, } = require("./controllers/authentication/3.isAuthenticated");
-const { authenticationSignup, } = require("./controllers/authentication/authenticationSignup");
-
 const { transferToS3 } = require("./db/aws3/transferToS3");
 const { addMealSuggestion, } = require("./db/dbMongo/queries/mealsAPI/addMealSuggestion");
 const { writeFile } = require("./db/dbMongo/config/writeFile");

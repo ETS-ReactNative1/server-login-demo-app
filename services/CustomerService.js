@@ -1,148 +1,162 @@
-const { getHashPassword } = require('../lib/hashPassword');
-const pool = require("../db/dbPostgress/config/db_connection");
-const Joi  = require('joi');
-const { signUpSchema  } = require('../utils/validators')
+const { getHashPassword } = require("../lib/hashPassword");
+const { signUpSchema, resetPasswordSchema, } = require("../utils/validators");
+const {
+  createCustomer,
+  updateCustomerPasswordToken,
+  resetCustomerPassword
+} = require("../repository");
+const bcrypt = require("bcryptjs");
+const { sign } = require("jsonwebtoken");
+const crypto = require("crypto");
 
 const {
-    customer_grocery_list,
-  } = require("../db/dbMongo/config/db_buildSchema");
+  customer_grocery_list,
+} = require("../db/dbMongo/config/db_buildSchema");
+const { signUpEmail, forgotPasswordEmail } = require("../mailer/nodemailer");
 const {
-    signUpEmail
-  } = require("../mailer/nodemailer");
-  const {
-    checkEmailUser,
-  } = require("../db/dbPostgress/queries/authentication/checkEmail");
+  checkEmailUser,
+  checkEmail_customer,
+  checkValideToken,
+} = require("../db/dbPostgress/queries/authentication/checkEmail");
 
-class CustomerService{
-
-async customerSignup(payload){
-
-try{
-    const { email, password, username, phone, emailNotification } = payload;
-
-    const validate = signUpSchema.validate(payload);
-
-    //check for errors after data validation
-   const checkError  =  validate.error&& ({error:validate.error.details[0].message, code: 400})
-    //   Email verification
-    console.log(email)
-    if (
-      !checkError
-    ) {
-      checkEmailUser(email)
-        .then((result) => {
-          console.log('result of check user email')
-          console.log(result)
-          if (!result.rows[0]) {
-            console.log("Result is: ");
-            console.log(result.rows[0]);
-            getHashPassword(password)
-              .then((hashedPass) => {
-                let sql = {
-                  text: "insert into customer (email, phonenumber, username, password, emailnotification) values($1, $2, $3, $4, $5) RETURNING id",
-                  values: [email, phone, username, hashedPass, emailNotification],
-                };
-                pool.query(sql).then(
-                  (data) => {
-                    let id = data.rows[0].id;
-                    console.log("Created users id is : " + id);
-                    // use id to set up customer lists and customer grocery lists in mongo.
-                    customer_grocery_list.create(
-                      { list_id: id, grocery_list: [] },
-                      function (error, list) {
-                        if (error) {
-                          console.log(
-                            "Found an error when creating grocery list for new user"
-                          );
-                          console.log(err);
-                        } else {
-                          // console.log(Response)
-                          console.log(
-                            "Succesfully creates new grocery list for signed up user!"
-                          );
-                          console.log(list);
-                        }
-                      }
-                    );
-                    console.log("Added grocery list to mongo db!");
-                    signUpEmail(email);
-                    return JSON.stringify({
-                          msg: "User signed up successfully",
-                          done: true,
-                        })
-                  },
-                  (e) => {
-                    console.log(e);
-                  }
-                );
-              })
-              .catch((e) => {
-                throw e;
-              });
-          } else {
-            return
-                JSON.stringify({
-                  msg: "Your email already exist in our files, so simply login with your password.",
-                })
-          }
-        })
-        .catch((e) => {
-          console.log(e);
-          return JSON.stringify({ msg: "Internal server error" });
-        });
-    } else {
-      throw(checkError);
-    }
-}catch(error){
-  console.log('from catch block')
-throw error;
-}
-}
-
-
-async forgotPassword(payload){
-    try{
-        console.log("Comes in forgot password");
-        const { email, username } = payload;
-        // Check username as well when testing forgot password
-        checkEmailUser(email)
-          .then((result) => {
-            if (result.rows[0]) {
-              let token = crypto.randomBytes(20).toString("hex");
-              let sql = {
-                text: "UPDATE customer SET passwordtoken=$1 WHERE id=$2 RETURNING passwordtoken",
-                values: [token, result.rows[0].id],
-              };
-              pool.query(sql).then(
-                (data) => {
-                  //let id  = data.rows[0].id;
-                  let resetLink =
-                    req.headers.origin +
-                    "/resetpass?token=" +
-                    data.rows[0].passwordtoken;
-                  forgotPasswordEmail(email, resetLink);
-                  return{
-                        msg: "Email with reset link has been sent to you.",
-                        done: true,
-                      }
-                },
-                (e) => {
-                  console.log(e);
-                }
-              );
-            } else {
-              return { msg: "Your email does not exist bro." }
-            }
-          })
-          .catch((e) => {
-            console.log(e);
-            throw e
+class CustomerService {
+  async customerSignup(payload) {
+    try {
+      //validate input data with joi
+      const validate = signUpSchema.validate(payload);
+      //check for errors after data validation
+      const checkError = validate.error && {
+        error: validate.error.details[0].message,
+        code: 400,
+      };
+      //if validation error throw said error
+      if (!checkError) {
+        //check if email already exixts
+        const emailExists = await checkEmailUser(payload.email);
+        if (!emailExists[0]) {
+          //hash user password
+          const hashedPassword = await getHashPassword(payload.password);
+          //create customer entity
+          const customer = await createCustomer({
+            ...payload,
+            password: hashedPassword,
+            phonenumber: parseInt(phonenumber),
           });
-
-    }catch(error){
-return {msg: "Internal server error", error : error }
+          //create grocerylist
+          const groceryList = await customer_grocery_list.create({
+            list_id: customer.rows._id,
+            grocery_list: [],
+          });
+          if (groceryList && customer) {
+            //send signup email
+            signUpEmail(email);
+            return JSON.stringify({
+              msg: "User signed up successfully",
+              done: true,
+            });
+          }
+        } else {
+          //throw error if email is already in use
+          throw { code: "401", message: "email is already in use" };
+        }
+      } else {
+        throw checkError;
+      }
+    } catch (error) {
+      throw error;
     }
-}
+  }
+
+  async login(payload) {
+    const emailExists = await checkEmail_customer(payload.email);
+    try {
+      if (emailExists.rows[0]) {
+        const validatePassword = await bcrypt.compare(
+          payload.password,
+          emailExists.rows[0].password
+        );
+
+        const userInfo = {
+          id: emailExists.rows[0].id,
+          username: emailExists.rows[0].username,
+          email: emailExists.rows[0].email,
+        };
+        const generatedToken = await sign(userInfo, process.env.SECRET, {
+          expiresIn: "1h",
+        });
+        return {
+          success: true,
+          message: "Authentication successful!",
+          token: generatedToken,
+          customerID: emailExists.rows[0].id,
+          role: "customer",
+        };
+      } else {
+        throw { code: 401, message: "invalid user email" };
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async forgotPassword(payload) {
+    try {
+      const { email } = payload;
+      // Check username as well when testing forgot password
+      const userExists = await checkEmailUser(email);
+      if (!userExists[0]) {
+        throw { code: 401, message: "customer does not exist" };
+      }
+      let token = crypto.randomBytes(20).toString("hex");
+      const updateCustomerToken = await updateCustomerPasswordToken(
+        userExists[0].id,
+        token
+      );
+      if (!updateCustomerToken.rows[0]) {
+        throw { code: 401, message: "password reset operation failed" };
+      }
+      let resetLink =
+        process.env.APP_HOST +
+        "/resetpass?token=" +
+        updateCustomerToken.rows[0].passwordtoken;
+
+      forgotPasswordEmail(userExists[0].email, resetLink);
+      return {
+        msg: "Email with reset link has been sent to you.",
+        done: true,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async resetPassword(payload) {
+    const validate = resetPasswordSchema.validate(payload)
+    if (validate.error) {
+      throw ({
+        message: validate.error.details[0].message,
+        code: 400,
+      })
+    }
+    const validateToken = await checkValideToken(payload.token)
+    if (!validateToken.rows[0]) {
+      throw ({
+        message: "Invalid reset token provided",
+        code: 400,
+      })
+    }
+    console.log('before hasjing')
+    const hashedPassword = await getHashPassword(payload.password1);
+    const resetPassword = await resetCustomerPassword(validateToken.rows[0].id, hashedPassword)
+    if(resetPassword.rows[0]){
+      throw ({
+        message: "operation failed",
+        code: 401,
+      })
+    }
+
+      return {message:"password reset successful" }
+  }
 }
 
-module.exports = CustomerService
+module.exports = CustomerService;

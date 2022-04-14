@@ -1,5 +1,11 @@
-const {signUpSchema  } = require('./userInputValidator')
+const {
+  signUpSchema,
+  resetPasswordSchema,
+  loginSchema,
+} = require("./userInputValidator");
 
-module.exports={
-    signUpSchema
-}
+module.exports = {
+  signUpSchema,
+  resetPasswordSchema,
+  loginSchema,
+};

@@ -9,9 +9,10 @@ require('dotenv').config();
   password : process.env.PG_DATABASE_PASSWORD,
   database: process.env.PG_DATABASE_NAME,
 };
-console.log(options)
 
 
-const pool = new Client(options);
-pool.connect()
+const pool = new Client("postgresql://postgres:changeme@localhost:5432/awoE");
+pool.connect()  
+
+
 module.exports = pool;

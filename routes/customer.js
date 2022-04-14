@@ -8,7 +8,6 @@ const  addGroceryItemToCustomerList = require("../db/dbMongo/queries/list/addGro
 const { hashPassword } = require("../lib/hashPassword");
 const authunticationLogout = require("../controllers/authentication/authunticationLogout");
 const verifyAuthentication = require("../controllers/authentication/2.verifyTokenAuthenticator.js");
-const { signupCustomer, forgotPassword, resetPassword, } = require("../controllers/authentication/signup");
 const CustomerController = require('../controllers/CustomerController/customerController')
 
 //customer routes
@@ -21,10 +20,11 @@ router.get("/hash", hashPassword);
 router.get("/logout", authunticationLogout);
 
 //router.get("/getCustomerGroceryList/:customerId", verifyAuthentication, getCustomerGroceryList);
-router.post("/addTypeaheadDataToCustomerGroceryList/:idItem/:customerId", addGroceryItemToCustomerList.add);
-router.post("/signupuser", CustomerController.signUpCustomer);
-router.post("/api/forgotpass", forgotPassword);
-router.post("/api/resetpass", resetPassword);
+router.post("/addTypeaheadDataToCustomerGroceryList/:idItem/:customerId",verifyAuthentication, addGroceryItemToCustomerList.add);
+router.post("/signup", CustomerController.signUp);
+router.post("/signin", CustomerController.signIn);
+router.post("/forgotpassword", CustomerController.forgotPassword);
+router.post("/resetpassword",CustomerController.resetPassword);
 
 
 

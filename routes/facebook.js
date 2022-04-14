@@ -9,7 +9,7 @@ passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
     callbackURL: "https://www.chopchowsd.herokuapp.com/renderEJS"
-  },
+  },  
   function(accessToken, refreshToken, profile, done) {
       console.log("Gets in fb init; checks if logged in user exists");
     User.findOrCreate(function(err, user) {
@@ -34,8 +34,6 @@ router.get('/auth/facebook', ()=>{
 router.get('/auth/facebook/callback',
   passport.authenticate('facebook', { successRedirect: '/renderEJS',
                                       failureRedirect: '/' }));
-
-      
 
 
 module.exports = router;

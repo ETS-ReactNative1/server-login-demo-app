@@ -9,7 +9,6 @@ const checkEmail_customer = (email) => {
       values: [email],
     };
     conn = dbconnection.query(sql);
-    console.log(conn);
    } catch(e) {
     console.log("fails to find email for customer ")
     //  debugger
@@ -61,13 +60,13 @@ const checkEmail_supplier = (email) => {
 
 
 const checkEmailUser = async (email) => {
-  let conn; 
+  let conn;
   try {
     const sql = {
       text: 'SELECT * FROM customer WHERE email = $1',
       values: [email],
     };
-    conn = await dbconnection.query(sql);
+    conn = await (await dbconnection.query(sql)).rows;
    } catch(e) {
      console.log(e)
      debugger
@@ -77,9 +76,9 @@ const checkEmailUser = async (email) => {
 };
 
 const checkValideToken = (token) => {
-  let conn; 
+  let conn;
   try {
-    const sql = {
+    const sql = { 
       text: 'SELECT * FROM customer WHERE passwordtoken = $1',
       values: [token],
     };
@@ -90,24 +89,5 @@ const checkValideToken = (token) => {
 
   return conn;
 };
-
-//  const checkEmail = (email) => {
-//   let conn; 
-//   try {
-//     console.log("Attempts to query database");
-//     const sql = {
-//       text: 'SELECT * FROM customer WHERE email = $1',
-//       values: [email],
-//     };
-//     conn = dbconnection.query(sql);    
-//     console.log(conn);
-//    } catch(e) {
-//     console.log("fails to find email for customer ")
-//     //  debugger
-//     //  console.log("fails to find email for customer ")
-//    }
-
-//   return conn;
-// };
 
  module.exports = { checkEmail_admin, checkEmail_customer,checkEmail_supplier, checkEmailUser, checkValideToken };
