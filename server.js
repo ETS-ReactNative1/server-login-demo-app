@@ -17,6 +17,7 @@ function randomString(size = 6) {
 
 const pw = process.env.MongoPassword;
 require("./db/dbMongo/config/db_connection");
+require('./db/dbPostgress/config/db_connection')
 
 const app = express();
 const port = process.env.PORT || 5000;

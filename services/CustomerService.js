@@ -1,5 +1,8 @@
 const { getHashPassword } = require('../lib/hashPassword');
 const pool = require("../db/dbPostgress/config/db_connection");
+const Joi  = require('joi');
+const { signUpSchema  } = require('../utils/validators')
+
 const {
     customer_grocery_list,
   } = require("../db/dbMongo/config/db_buildSchema");
@@ -17,25 +20,19 @@ async customerSignup(payload){
 try{
     const { email, password, username, phone, emailNotification } = payload;
 
-    console.log("Email is: " + email);
-  
-    var [account, address] = email.split("@");
-    var domainParts = address.split(".");
-  
+    const validate = signUpSchema.validate(payload);
+
+    //check for errors after data validation
+   const checkError  =  validate.error&& ({error:validate.error.details[0].message, code: 400})
     //   Email verification
+    console.log(email)
     if (
-      (/^[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/.test(
-        email
-      ) ||
-        email === "") &&
-      email.length < 256 &&
-      account.length < 64 &&
-      domainParts.some(function (part) {
-        return part.length < 63;
-      })
+      !checkError
     ) {
       checkEmailUser(email)
         .then((result) => {
+          console.log('result of check user email')
+          console.log(result)
           if (!result.rows[0]) {
             console.log("Result is: ");
             console.log(result.rows[0]);
@@ -94,10 +91,11 @@ try{
           return JSON.stringify({ msg: "Internal server error" });
         });
     } else {
-      return JSON.stringify({ msg: "Invalid email." });
+      throw(checkError);
     }
 }catch(error){
-return error;
+  console.log('from catch block')
+throw error;
 }
 }
 
