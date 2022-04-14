@@ -60,17 +60,17 @@ const checkEmail_supplier = (email) => {
 };
 
 
-const checkEmailUser = (email) => {
+const checkEmailUser = async (email) => {
   let conn; 
   try {
     const sql = {
       text: 'SELECT * FROM customer WHERE email = $1',
       values: [email],
     };
-    conn = dbconnection.query(sql);
+    conn = await dbconnection.query(sql);
    } catch(e) {
+     console.log(e)
      debugger
-     console.log("ok")
    }
 
   return conn;
