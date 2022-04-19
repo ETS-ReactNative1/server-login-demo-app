@@ -2,7 +2,6 @@ const chalk = require('chalk');
 
 exports.isAuthenticated = (req, res, next) => {
   console.log("in isAuthenticated file, decoded is :")
-  console.log(req.decoded)
   const { id, username } = req.decoded;
   console.log(chalk.cyan("Request decoded id: ") + id);
   console.log(chalk.cyan("Request decoded username: ") + username);

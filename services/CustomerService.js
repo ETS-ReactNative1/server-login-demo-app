@@ -145,7 +145,7 @@ class CustomerService {
         code: 400,
       })
     }
-    console.log('before hasjing')
+    
     const hashedPassword = await getHashPassword(payload.password1);
     const resetPassword = await resetCustomerPassword(validateToken.rows[0].id, hashedPassword)
     if(resetPassword.rows[0]){

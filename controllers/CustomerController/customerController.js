@@ -43,7 +43,6 @@ module.exports = {
   },
 
   forgotPassword: async (req, res) => {
-    console.log(req.headers)
     try {
       const response = await new CustomerService().forgotPassword(req.body);
       if (response) {
@@ -73,7 +72,7 @@ module.exports = {
     } catch (error) {
       return res
         .status(error?.code || Response?.HTTP_INTERNAL_SERVER_ERROR)
-        .json(new ErrorResponse(error));
+          .json(new ErrorResponse(error));
     }
   },
 
