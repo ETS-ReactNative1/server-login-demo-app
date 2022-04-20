@@ -8,11 +8,11 @@ const signUpSchema = Joi.object({
     password:Joi.string().required(),
     username:Joi.string().required(),
     phonenumber:Joi.string(),
-    emailNotification: Joi.boolean()
+    emailnotification: Joi.boolean()
 })      
 
 const loginSchema = Joi.object({
-    email: Joi.string().email().required(),
+    email: Joi.string().email().required(), 
     password:Joi.string().required(),
 })
 

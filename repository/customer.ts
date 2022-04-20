@@ -1,12 +1,14 @@
 const db_connection = require('../db/dbPostgress/config/db_connection')
 
 const createCustomer = async(payload)=>{
- const   {firstname,lastname, email, phonenumber, username, password, emailNotification} = payload
+ const   {firstname,lastname, email, phonenumber, username, password, emailnotification} = payload
     let sql = {
         text: "insert into customer (firstname,lastname, email, phonenumber, username, password, emailnotification) values($1, $2, $3, $4, $5 , $6, $7) RETURNING id",
-        values: [firstname, lastname, email, phonenumber, username, password, emailNotification],
+        values: [firstname, lastname, email, phonenumber, username, password, emailnotification],
       }
 const customer = await db_connection.query(sql)
+console.log('logging customer ')
+console.log(customer)
 return customer
 }
 
@@ -28,8 +30,19 @@ const resetCustomerPassword = async(id,password)=>{
       return updatePassword;
 }
 
+
+const deleteCustomerUsingEmail = async(email)=>{
+    const newSql ={ text:`DELETE FROM customer WHERE email = $1`,
+          values: [email]
+  }
+
+const deleteCustomer= await db_connection.query(newSql)
+return deleteCustomer;
+}
+
 module.exports={
     createCustomer,
     updateCustomerPasswordToken,
-    resetCustomerPassword
+    resetCustomerPassword,
+    deleteCustomerUsingEmail
 }

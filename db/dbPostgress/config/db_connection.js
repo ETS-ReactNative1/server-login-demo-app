@@ -11,7 +11,7 @@ require('dotenv').config();
 };
 
 
-const pool = new Client("postgresql://postgres:changeme@localhost:5432/awoE");
+const pool = new Client(process.env.POSTGRESS_URL|| options);
 pool.connect()  
 
 

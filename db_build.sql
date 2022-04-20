@@ -22,7 +22,7 @@ CREATE TABLE customer(
   zipCode INTEGER,
   ipsid INTEGER,
   username TEXT,
-  emailnotifcation BOOLEAN,
+  emailnotification BOOLEAN,
   passwordtoken TEXT,
   list_id NUMERIC
 );

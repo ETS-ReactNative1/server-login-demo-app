@@ -3,7 +3,8 @@ const { signUpSchema, resetPasswordSchema, } = require("../utils/validators");
 const {
   createCustomer,
   updateCustomerPasswordToken,
-  resetCustomerPassword
+  resetCustomerPassword,
+  deleteCustomerUsingEmail
 } = require("../repository");
 const bcrypt = require("bcryptjs");
 const { sign } = require("jsonwebtoken");
@@ -40,7 +41,7 @@ class CustomerService {
           const customer = await createCustomer({
             ...payload,
             password: hashedPassword,
-            phonenumber: parseInt(phonenumber),
+            phonenumber: parseInt(payload.phonenumber),
           });
           //create grocerylist
           const groceryList = await customer_grocery_list.create({
@@ -49,7 +50,7 @@ class CustomerService {
           });
           if (groceryList && customer) {
             //send signup email
-            signUpEmail(email);
+            signUpEmail(payload.email);
             return JSON.stringify({
               msg: "User signed up successfully",
               done: true,
@@ -63,6 +64,11 @@ class CustomerService {
         throw checkError;
       }
     } catch (error) {
+      const customerCreated = await checkEmailUser(payload.email);
+      if(error.message !=="email is already in use" && customerCreated[0]){
+        deleteCustomerUsingEmail(payload.email)
+        throw error;
+      }
       throw error;
     }
   }

@@ -6,24 +6,10 @@ const cors = require("cors");
 const cookie = require("cookie-parser"); // cookies required for login authentication
 const mongoose = require("mongoose");
 require("dotenv").config();
+const cluster = require("cluster");
+const totalCPUs = require("os").cpus().length;
 
 const Crypto = require('crypto');
-function randomString(size = 6) {
-  return Crypto
-    .randomBytes(size)
-    .toString('base64')
-    .slice(0, size)
-}
-
-const pw = process.env.MongoPassword;
-require("./db/dbMongo/config/db_connection");
-require('./db/dbPostgress/config/db_connection')
-
-const app = express();
-const port = process.env.PORT || 5000;
-const facebook = require("./routes/facebook");
-
-
 //----------------------------------------------------------------------------------
 const { authenticateLoginToken, } = require("./controllers/authentication/1.authenticateLoginToken");
 const { isAuthenticated, } = require("./controllers/authentication/3.isAuthenticated");
@@ -35,19 +21,15 @@ const { readFile } = require("./db/dbMongo/config/readFile");
 const { readFiles } = require("./db/dbMongo/config/readFiles");
 const { readImage } = require("./db/dbMongo/config/readImage");
 const { readImages } = require("./db/dbMongo/config/readImages");
-
-
 const { sendMealtable, } = require("./db/dbMongo/queries/mealsAPI/sendMealtable");
 const { updateSuggestedMealItem, } = require("./db/dbMongo/queries/mealsAPI/updateSuggestedMealItem");
 const { getAllDataLists, } = require("./db/dbMongo/queries/list/getAllDataLists");
 const { getMeals } = require("./db/dbMongo/queries/mealsAPI/getMeals");
 const { getSuggestedMeals } = require("./db/dbMongo/queries/mealsAPI/getSuggestedMeals");
 const { getSuggestedMealImages } = require("./db/dbMongo/queries/mealsAPI/getSuggestedMealImages");
-
 const { getAllProducts, } = require("./db/dbMongo/queries/productsAPI/getAllProducts");
 // const appendItem = require('./db/dbMongo/queries/list/appendItem')
 const removeSuggestedMealItem = require("./db/dbMongo/queries/mealsAPI/removeSuggestedMealItem");
-
 // const createList = require('./db/dbMongo/queries/list/createList')
 // const getCustomersLists = require('./db/dbMongo/queries/list/getCustomersLists') // commented out until needed
 const getItemId = require("./db/dbMongo/queries/list/getItemId");
@@ -55,6 +37,29 @@ const getDataItemTypeahead = require("./db/dbMongo/queries/list/getDataItemTypea
 const { getAllCategories, } = require("./db/dbMongo/queries/mealsAPI/getAllCategories");
 const customerRoutes = require('./routes/customer');
 
+
+
+const port = process.env.PORT || 5000;
+const facebook = require("./routes/facebook");
+function randomString(size = 6) {
+  return Crypto
+    .randomBytes(size)
+    .toString('base64')
+    .slice(0, size)
+}
+
+const pw = process.env.MongoPassword;
+require("./db/dbMongo/config/db_connection");
+require('./db/dbPostgress/config/db_connection')
+
+
+if(cluster.isMaster){
+  for (var i = 0; i < totalCPUs; i++) {
+    // Create a worker
+    cluster.fork();
+}
+}else{
+  const app = express();
 //----------------------------------------------------------------------------------
 app.set("view engine", "ejs");
 app.use(express.json({ limit: '50mb' }));
@@ -218,3 +223,7 @@ app.use((error) => {
 app.listen(port, () => console.log(`Listening on port ${port}`));
 
 app.post("/api/updateSuggestedMealItem/", upload.array('imgSrc'), updateSuggestedMealItem);
+
+}
+
+
