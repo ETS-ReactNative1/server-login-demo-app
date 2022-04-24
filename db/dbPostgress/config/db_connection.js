@@ -10,9 +10,10 @@ require('dotenv').config();
   database: process.env.PG_DATABASE_NAME,
 };
 
+console.log(process.env.POSTGRES_DATABASE_URL)
 
-const pool = new Client(process.env.POSTGRESS_URL|| options);
-pool.connect()  
+const pool = new Client(process.env.POSTGRES_DATABASE_URL || options);
+pool.connect()
 
 
 module.exports = pool;

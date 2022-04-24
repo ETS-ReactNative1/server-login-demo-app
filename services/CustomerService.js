@@ -4,7 +4,8 @@ const {
   createCustomer,
   updateCustomerPasswordToken,
   resetCustomerPassword,
-  deleteCustomerUsingEmail
+  deleteCustomerUsingEmail,
+  getCustomerGroceryList
 } = require("../repository");
 const bcrypt = require("bcryptjs");
 const { sign } = require("jsonwebtoken");
@@ -160,8 +161,19 @@ class CustomerService {
         code: 401,
       })
     }
-
       return {message:"password reset successful" }
+  }
+
+  async getGroceryList(customerId){
+    try{
+      const getGroceryList = await getCustomerGroceryList(customerId)
+      return getGroceryList
+    }catch(error){
+    throw error
+    }
+
+
+
   }
 }
 

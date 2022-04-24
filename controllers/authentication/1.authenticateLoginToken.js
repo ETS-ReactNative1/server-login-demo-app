@@ -21,8 +21,6 @@ exports.authenticateLoginToken = (req, res, next) => {
     checkEmail_admin(memberInfo.email).then((result) => {
         // console.log(chalk.red("___found admin email______"), result);
         if (result.rows[0]) {
-          console.log("Expected password is: "+ result.rows[0].password);
-          console.log("Given password is: "+ memberInfo.password);
 
           sign(process.env.SECRET,
             { expiresIuserInfoEncn: "1h", },// expires in 24hours secs
@@ -39,20 +37,14 @@ exports.authenticateLoginToken = (req, res, next) => {
           );
 
           bcrypt.compare( memberInfo.password, result.rows[0].password, (err, valid) => {
-              console.log(  "response with admin id in create login token is: ");
-              console.log(result.rows[0]);
-              console.log("valid is: "+ valid);
               if (valid) {
                 const { id, username, email } = { ...result.rows[0] };
                 const userInfoEnc = { id, username, email };
 
-                console.log("userInfoEnc", userInfoEnc);
                 // console.log('secret',process.env.SECRET);
                 sign(userInfoEnc, process.env.SECRET,
                   { expiresIn: "1h", },// expires in 24hours secs
                   (err, token) => {
-                    console.log("signed json token is");
-                    console.log("token:", token);                    
                     // If authentication is successful,
                     // the server should create a JWT token else establishes an error response
                     if (err) return res.json({ err });

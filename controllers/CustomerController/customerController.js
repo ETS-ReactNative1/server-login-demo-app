@@ -20,7 +20,7 @@ module.exports = {
       }
     } catch (error) {
       return res
-        .status(error?.code || Response?.HTTP_INTERNAL_SERVER_ERROR)
+        .status(error.code ||  Response.HTTP_INTERNAL_SERVER_ERROR)
         .json(new ErrorResponse(error));
     }
   },
@@ -30,14 +30,14 @@ module.exports = {
       const customer = await new CustomerService().login(req.body);
       if (customer) {
         res
-          .status(Response.HTTP_ACCEPTED)
+          .status(error.code || Response.HTTP_ACCEPTED)
           .json(new SuccessResponse(customer));
       } else {
         throw customer;
       }
     } catch (error) {
       return res
-        .status(error?.code || Response?.HTTP_INTERNAL_SERVER_ERROR)
+        .status( Response.HTTP_INTERNAL_SERVER_ERROR)
         .json(new ErrorResponse(error));
     }
   },
@@ -54,7 +54,7 @@ module.exports = {
       }
     } catch (error) {
       return res
-        .status(error?.code || Response?.HTTP_INTERNAL_SERVER_ERROR)
+        .status(error.code || Response.HTTP_INTERNAL_SERVER_ERROR)
         .json(new ErrorResponse(error));
     }
   },
@@ -71,9 +71,28 @@ module.exports = {
       }
     } catch (error) {
       return res
-        .status(error?.code || Response?.HTTP_INTERNAL_SERVER_ERROR)
+        .status(error.code || Response.HTTP_INTERNAL_SERVER_ERROR)
           .json(new ErrorResponse(error));
     }
   },
+
+  getGroceryList: async (req,res)=>{
+    const { customerId } = req.params;
+    let groceryListArray = [];
+    try {
+      const groceryList = await new CustomerService.getGroceryList(customerId)
+      if (groceryList) {
+        res
+          .status(error.code || Response.HTTP_ACCEPTED)
+          .json(new SuccessResponse(groceryList));
+      } else {
+        throw groceryList;
+      }
+    } catch (error) {
+      return res
+        .status(error.code || Response.HTTP_INTERNAL_SERVER_ERROR)
+          .json(new ErrorResponse(error));
+    }
+  }
 
 };
