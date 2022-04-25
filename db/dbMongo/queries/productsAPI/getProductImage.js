@@ -18,23 +18,17 @@ exports.getProductImage = (req, res) => {
             console.log("Connection Open");
             var gridfs = grid(connection.db);
             if (gridfs) {
-                // download file to local disk
-                // var fsstreamwrite = fs.createWriteStream(
-                //     path.join(__dirname, "./filestowrite/dbtomato.jpg")
-                // );
-
                 //read from mongodb
                 var readstream = gridfs.createReadStream({
                     // may be better to pass in the id
                     filename: "tomato.jpg"
                     // filename: 'w/'+req.params.id
                 });
-    
                 // return piped readstream as response 
                 res.set('Content-Type', mediaFile.mimetype);
 
                 readstream.pipe(res);
-                
+
                 res.on('close', function () {
                      console.log('file has been written fully!');
                 });

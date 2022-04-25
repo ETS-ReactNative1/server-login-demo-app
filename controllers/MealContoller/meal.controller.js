@@ -124,10 +124,27 @@ module.exports = {
       } else {
         throw updateSuggestions;
       }
-    } catch (error) {      return res
+    } catch (error) {
+      return res
         .status(error.code || Response.HTTP_INTERNAL_SERVER_ERROR)
         .json(new ErrorResponse(error));
     }
   },
 
+  getMealCategories: async (req, res) => {
+    try {
+      const mealCategories = await new MealService().getAllMealCactegories();
+      if (mealCategories) {
+        res
+          .status(Response.HTTP_ACCEPTED)
+          .json(new SuccessResponse(mealCategories));
+      } else {
+        throw mealCategories;
+      }
+    } catch (error) {
+      return res
+        .status(error.code || Response.HTTP_INTERNAL_SERVER_ERROR)
+        .json(new ErrorResponse(error));
+    }
+  },
 };

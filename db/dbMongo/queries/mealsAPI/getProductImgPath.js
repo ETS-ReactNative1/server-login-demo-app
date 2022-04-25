@@ -10,6 +10,6 @@ exports.getProductImgPath = (req, res) =>{
       img_path.push(url+"/uploads/products/" + req.files[i].filename);
     }
     res.send({ productImg_paths: img_path });
-  //   res.status(200).send(JSON.stringify({ msg: 'Succesfully send to meal table.', done: true }))
+  //res.status(200).send(JSON.stringify({ msg: 'Succesfully send to meal table.', done: true }))
   };
   

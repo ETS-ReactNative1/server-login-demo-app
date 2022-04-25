@@ -225,6 +225,20 @@ const updateSuggestedMealItem = async (payload) => {
   }
 };
 
+const getAllCategories = async() => {
+  try{
+    const allMealCategories = await all_meal_categories.find()
+    return {   data: allMealCategories,  };
+  }catch(error){
+    throw {
+      error: error,
+      message: error.message || "get all categories failed",
+      code: 500,
+    };
+  }
+};
+
+
 module.exports = {
   getMeals,
   getSuggestedMeals,
@@ -233,4 +247,5 @@ module.exports = {
   createMealFromSuggestion,
   addMealSuggestion,
   updateSuggestedMealItem,
+  getAllCategories,
 };

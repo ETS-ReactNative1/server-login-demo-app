@@ -57,5 +57,6 @@ router.post(
 );
 
 router.post("/updateSuggestedMealItem/", upload.array('imgSrc'), MealsController.updateSuggestedMealItem);
+router.get("/get-all-categories", MealsController.getMealCategories);
 
 module.exports = router;

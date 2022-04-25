@@ -1,4 +1,4 @@
-const { getMeals,getSuggestedMeals,getMealImages ,removeSuggestedMeal,createMealFromSuggestion,addMealSuggestion,updateSuggestedMealItem} = require("../repository/index");
+const { getMeals,getAllCategories,getSuggestedMeals,getMealImages ,removeSuggestedMeal,createMealFromSuggestion,addMealSuggestion,updateSuggestedMealItem} = require("../repository/index");
 
 class MealService {
   async getMeals() {
@@ -66,7 +66,14 @@ class MealService {
   }
 
 
-
+  async getAllMealCactegories (){
+    try {
+        const allMealCategories = await getAllCategories();
+        return allMealCategories;
+      } catch (error) {
+        throw error;
+      };
+  }
 
 }
 
