@@ -53,11 +53,6 @@ if (cluster.isMaster) {
   // app.get("/api/authenticate-app-page", verifyAuthentication, isAuthenticated);
   app.get("/api/get-all-data-lists", getAllDataLists);
 
-  app.get("/test", (req, res) => {
-    console.log("To test page");
-    res.send(JSON.stringify(req.session));
-  });
-
   app.get("/renderEJS", (req, res) => {
     console.log("To render ");
     res.render("index");
